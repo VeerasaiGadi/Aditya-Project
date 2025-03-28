@@ -1,0 +1,292 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Centering Container */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Data Table Container */
+.data-table-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 80%;
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Header Section */
+.data-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.data-table-header h2 {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* Filters and Search Bar */
+.filters-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.filters select, .search-box {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    width: 100%;
+    max-width: 200px;
+}
+
+/* Buttons Container */
+.buttons-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+/* Button Styling */
+.button {
+    padding: 12px 18px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: 0.3s ease-in-out;
+}
+
+.compare-columns {
+    background-color: #007bff;
+    color: white;
+}
+
+.compare-rows {
+    background-color: #007bff;
+    color: white;
+}
+
+.button:hover {
+    opacity: 0.8;
+}
+
+/* Stylish Buttons */
+.compare-button {
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+
+.stylish-button {
+    background-color: #c9de54;
+    color: white;
+}
+
+.stylish-button:hover {
+    background-color: #0056b3;
+}
+
+/* Data Table */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    margin-top: 10px;
+    overflow-x: auto;
+}
+
+.data-table th, .data-table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.data-table th {
+    font-weight: bold;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 30px;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.pagination .page-number {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.pagination .prev,
+.pagination .next {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.pagination .prev {
+    background-color: #ccc;
+    color: #666;
+}
+
+.pagination .next {
+    background-color: #007bff;
+    color: white;
+}
+
+.pagination .prev:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination-button {
+    background-color: aqua;
+    width: 100px;
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 1024px) {
+    .data-table-container {
+        width: 90%;
+    }
+
+    .filters select, .search-box {
+        width: 100%;
+        max-width: 180px;
+    }
+
+    .buttons-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .button {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .data-table-container {
+        width: 95%;
+        padding: 15px;
+    }
+
+    .data-table-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .filters-container {
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .filters select, .search-box {
+        width: 100%;
+    }
+
+    .buttons-container {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .button {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .data-table th, .data-table td {
+        font-size: 12px;
+        padding: 8px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+
+    .data-table-container {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    .data-table-header h2 {
+        font-size: 20px;
+    }
+
+    .filters-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .filters select, .search-box {
+        width: 100%;
+    }
+
+    .buttons-container {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .button {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .data-table th, .data-table td {
+        font-size: 10px;
+        padding: 5px;
+    }
+
+    .pagination {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .pagination .prev,
+    .pagination .next {
+        width: 80%;
+    }
+}

@@ -1,0 +1,79 @@
+.compare-container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.compare-title {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.dropdown-container {
+    margin-bottom: 20px;
+}
+
+.dropdown-container label {
+    font-size: 16px;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.dropdown-container select {
+    margin: 5px;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.comparison-table th, .comparison-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.match {
+    background-color: #d4edda;
+    color: #155724;
+    font-weight: bold;
+}
+
+.mismatch {
+    background-color: #f8d7da;
+    color: #721c24;
+    font-weight: bold;
+}
+
+.back-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 20px;
+}
+
+.back-button:hover {
+    background-color: #0056b3;
+}
+
+.no-data {
+    text-align: center;
+    font-size: 18px;
+    color: #888;
+}

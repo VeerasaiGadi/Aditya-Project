@@ -1,0 +1,96 @@
+/* Center the form */
+.register-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  height: 100vh;
+}
+
+/* Form styling */
+.form_area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background-color: #EDDCD9;
+  height: auto;
+  width: auto;
+  padding: 30px;
+  border: 2px solid #264143;
+  border-radius: 20px;
+  box-shadow: 3px 4px 0px 1px #E99F4C;
+}
+
+/* Form Title */
+h2 {
+  color: #264143;
+  font-weight: 900;
+  font-size: 1.8em;
+  margin-bottom: 20px;
+}
+
+/* Input Fields */
+input {
+  width: 290px;
+  padding: 12px 10px;
+  margin: 10px 0;
+  border: 2px solid #264143;
+  border-radius: 4px;
+  font-size: 16px;
+  background: #f9f9f9;
+  box-shadow: 3px 4px 0px 1px #E99F4C;
+  transition: all 0.3s;
+}
+
+input:focus {
+  transform: translateY(4px);
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 1px 2px 0px 0px #E99F4C;
+  background: #ffffff;
+}
+
+/* Register Button */
+button {
+  width: 290px;
+  padding: 15px;
+  background: #c9de54;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 3px 3px 0px 0px #E99F4C;
+  transition: all 0.3s;
+  margin-top: 15px;
+}
+
+button:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+/* Error & Success Messages */
+.error-message {
+  color: #d9534f;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.success-message {
+  color: #5cb85c;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Link Styling */
+.link {
+  font-weight: 800;
+  color: #264143;
+  padding: 5px;
+}

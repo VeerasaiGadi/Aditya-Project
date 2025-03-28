@@ -1,0 +1,24 @@
+.navbar {
+  padding: 1rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+ 
+}
+
+.navbar-div{
+  border: 1px solid black;
+
+  
+}
+
+/* Light mode styles */
+.light-mode .navbar {
+  background-color: #f8f9fa;
+  color: #212529;
+  
+}
+
+/* Dark mode styles */
+.dark-mode .navbar {
+  background-color: #1a1b24;
+  color: #ffffff;
+}
