@@ -8,34 +8,54 @@ const DetailsPage = () => {
     const row = location.state?.row;
     const [predictedSalary, setPredictedSalary] = useState(null);
     const [decision, setDecision] = useState(null);
-    const [uploadedImage, setUploadedImage] = useState(null);
-    const fileInputRef = useRef(null); // Fixed missing useRef
+    const [uploadedImage, setUploadedImage] = useState(
+        row.profilePicFilename ? `http://127.0.0.1:5000/images/${row.profilePicFilename}` : null
+    );
+    const fileInputRef = useRef(null);
 
     if (!row) {
         return <p className="no-details">No details available.</p>;
     }
 
-    const handleImageUpload = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setUploadedImage(reader.result);
-            };
-            reader.readAsDataURL(file);
+// In your React frontend
+const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (file && row.EmployeeNumber) {
+        const formData = new FormData();
+        formData.append('image', file);
+        formData.append('employeeId', row.EmployeeNumber);
+        
+        try {
+            const response = await fetch("http://127.0.0.1:5000/upload-image", {
+                method: "POST",
+                body: formData,
+            });
+            
+            const data = await response.json();
+            if (response.ok) {
+                console.log("✅ Image uploaded successfully:", data);
+                setUploadedImage(data.imageUrl);
+                
+                // Update the row data to include the new filename
+                if (data.imageUrl) {
+                    const filename = data.imageUrl.split('/').pop();
+                    // Make a shallow copy of row and update it
+                    const updatedRow = { ...row, profilePicFilename: filename };
+                    // If you're using React Router location state, you might need to
+                    // update it, or consider using a different state management solution
+                }
+            } else {
+                console.error("❌ Error uploading image:", data.error || "Unknown error");
+            }
+        } catch (error) {
+            console.error("❌ Error uploading image:", error);
         }
-    };
-
-    const handleRemoveImage = () => {
-        setUploadedImage(null);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = "";
-        }
-    };
+    }
+};
 
     const handlePredict = async () => {
         console.log("📤 Sending data to API:", row);
-
+    
         try {
             const response = await fetch("http://127.0.0.1:5000/predict", {
                 method: "POST",
@@ -44,10 +64,10 @@ const DetailsPage = () => {
                 },
                 body: JSON.stringify(row)
             });
-
+    
             const data = await response.json();
             console.log("✅ Prediction Response:", data);
-
+    
             if (response.ok) {
                 if (data.predicted_salary !== undefined) {
                     setPredictedSalary(data.predicted_salary);
@@ -62,6 +82,14 @@ const DetailsPage = () => {
         }
     };
 
+    const handleRemoveImage = () => {
+        setUploadedImage(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+    };
+
+
     const handleDecision = (userDecision) => {
         setDecision(userDecision);
         console.log(`User decision: ${userDecision}`);
@@ -73,44 +101,78 @@ const DetailsPage = () => {
         { name: "Actual Salary", salary: actualSalary },
         { name: "Predicted Salary", salary: predictedSalary }
     ] : [];
+// Define the keys you want to display
+const keysToDisplay = [
+    "EmployeeNumber",
+    "Name",
+    "Department",
+    "Education",
+    "EducationField",
+    "JobLevel",
+    "JobRole",
+    "MonthlyIncome",
+    "PerformanceRating",
+    "StudentFeedbackPercentage",
+    "FeedbackCount",
+    "PercentSalaryHike",
+    "profilePicFilename"
+];
 
     return (
         <div className="details-container">
             <h2 className="details-title">Row Details</h2>
             <div className="profile-section">
                 <div className="image-upload-container">
-                    {uploadedImage ? (
-                        <img 
-                            src={uploadedImage} 
-                            alt="Uploaded profile" 
-                            className="uploaded-image"
-                        />
-                    ) : (
-                        <div className="image-placeholder">
-                            <input 
-                                type="file" 
-                                accept="image/*" 
-                                onChange={handleImageUpload}
-                                ref={fileInputRef} // Fixed file input reference
-                                className="file-input"
-                            />
-                            <p>Upload Profile Picture</p>
-                        </div>
-                    )}
+                {uploadedImage ? (
+    <img
+        src={uploadedImage}
+        alt="Uploaded profile"
+        className="uploaded-image"
+        onError={(e) => {
+            console.error("Failed to load image:", uploadedImage);
+            setUploadedImage(null);
+        }}
+    />
+) : row.profilePicFilename ? ( // Load existing image from backend
+    <img
+        src={`http://127.0.0.1:5000/images/${row.profilePicFilename}`}
+        alt="Profile"
+        className="uploaded-image"
+        onError={(e) => {
+            console.error("Failed to load image:", row.profilePicFilename);
+            setUploadedImage(null);
+        }}
+    />
+) : (
+    <div className="image-placeholder">
+        <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            ref={fileInputRef}
+            className="file-input"
+        />
+        <p>Upload Profile Picture</p>
+    </div>
+)}
+
                 </div>
+                
 
                 {uploadedImage && (
-                    <button 
-                        className="remove-image-button" 
+                    <button
+                        className="remove-image-button"
                         onClick={handleRemoveImage}
                     >
                         Remove
                     </button>
                 )}
 
-                <table className="details-table">
-                    <tbody>
-                        {Object.entries(row).map(([key, value]) => (
+            <table className="details-table">
+                <tbody>
+                    {Object.entries(row)
+                        .filter(([key]) => keysToDisplay.includes(key)) // Filter by keys
+                        .map(([key, value]) => (
                             <tr key={key}>
                                 <td className="details-key">{key}</td>
                                 <td className="details-value">
@@ -118,8 +180,8 @@ const DetailsPage = () => {
                                 </td>
                             </tr>
                         ))}
-                    </tbody>
-                </table>
+                </tbody>
+            </table>
             </div>
 
             <div>
@@ -143,7 +205,7 @@ const DetailsPage = () => {
                     <p className="actual-salary">Actual Salary: ${actualSalary?.toFixed(2) ?? "N/A"}</p>
 
                     {difference !== null && (
-                        <p 
+                        <p
                             className="salary-difference"
                             style={{ color: difference >= 0 ? "green" : "red", fontWeight: "bold" }}
                         >
@@ -151,7 +213,6 @@ const DetailsPage = () => {
                         </p>
                     )}
 
-                    {/* Accept and Decline Buttons */}
                     <div className="decision-buttons">
                         <button className="accept-button" onClick={() => handleDecision("Accepted")}>Accept</button>
                         <button className="decline-button" onClick={() => handleDecision("Declined")}>Decline</button>

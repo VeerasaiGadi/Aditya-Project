@@ -1,12 +1,16 @@
-from flask import Flask, jsonify, request
+from werkzeug.utils import secure_filename
+from flask import Flask, jsonify, request, send_from_directory
 from flask_pymongo import PyMongo
 from flask_cors import CORS
 from pymongo import MongoClient
 import bcrypt
-import pandas as pd
 import joblib
+import uuid
+from datetime import datetime
+import os
+import pandas as pd
 
-# Initialize Flask App   
+# Initialize Flask App
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
@@ -25,7 +29,7 @@ try:
     categorical_cols = ["Department", "EducationField", "JobRole"]
     print("✅ Model and encoder loaded successfully.")
 except Exception as e:
-    print(f"❌ Error loading model: {e}")
+    print(f"❌ Error loading model: {e}. Check if 'salary_model.pkl', 'encoder.pkl', and 'model_columns.pkl' exist in the project root.")
     model, ohe, model_columns = None, None, None
 
 # ---------- Home Route ----------
@@ -36,8 +40,7 @@ def home():
 # ---------- Get Employee Data ----------
 @app.route('/data', methods=['GET'])
 def get_data():
-    data = list(mongo.db.Employee.find({}, {"_id": 0}))
-    print(data)
+    data = list(db["Employee"].find({}, {"_id": 0}))
     return jsonify(data) if data else jsonify({"message": "No employee data found"}), 200
 
 # ---------- User Registration ----------
@@ -59,8 +62,6 @@ def register():
     return jsonify({"success": True, "message": "User registered successfully"}), 201
 
 # ---------- User Login ----------
-
-@app.route("/login", methods=["POST"])
 @app.route("/login", methods=["POST"])
 def login():
     data = request.json
@@ -70,12 +71,8 @@ def login():
     if not user or not bcrypt.checkpw(password.encode("utf-8"), user["password"]):
         return jsonify({"success": False, "message": "Invalid email or password"}), 401
 
-    # Fetch username from the database
     username = user.get("username", email)  # Fallback to email if username is not set
-
     return jsonify({"success": True, "username": username, "message": "Login successful"}), 200
-
-
 # ---------- Salary Prediction ----------
 @app.route('/predict', methods=['POST'])
 def predict_salary():
@@ -124,5 +121,96 @@ def predict_salary():
         print("❌ Error:", str(e))
         return jsonify({"error": "Prediction failed", "details": str(e)}), 500
     
-if __name__ == '__main__':
-    app.run(debug=True)
+# ---------- Profile Picture Upload ----------
+
+
+# Configure upload directory
+# Update this in your Flask app
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
+# Or if you need to go up one directory to the project root
+# UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'uploads')
+
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+@app.route("/upload-image", methods=["POST"])
+def upload_file():
+    if 'multipart/form-data' in request.content_type:
+        employee_id = request.form.get('employeeId')
+        file = request.files.get('image')
+    else:
+        return jsonify({"error": "Invalid request format"}), 400
+
+    if not employee_id or not file:
+        return jsonify({"error": "Employee ID and image are required"}), 400
+
+    try:
+        employee_id_int = int(employee_id)
+        
+        # Save file to disk
+        filename = f"{employee_id}_{secure_filename(file.filename)}"
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+        
+        # Store metadata in database
+        update_operation = {
+            "$set": {
+                "profilePicFilename": filename,
+                "profilePicPath": file_path,
+                "lastProfilePicUploadTimestamp": datetime.now()
+            }
+        }
+
+        result = mongo.db.Employee.update_one(
+            {"EmployeeNumber": employee_id_int},
+            update_operation,
+            upsert=True
+        )
+
+        if result.matched_count == 0 and result.upserted_id is None:
+            return jsonify({"error": "Employee not found"}), 404
+
+        image_url = f"http://127.0.0.1:5000/images/{filename}"
+        return jsonify({
+            "message": "Image uploaded successfully!",
+            "imageUrl": image_url
+        }), 200
+
+    except Exception as e:
+        print(f"Upload Error: {str(e)}")
+        return jsonify({
+            "error": "Upload failed",
+            "details": str(e)
+        }), 500
+
+# Add a route to serve images
+@app.route("/images/<filename>", methods=["GET"])
+def get_image(filename):
+    try:
+        # Debug info
+        full_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        print(f"🔍 Serving image: {filename}")
+        print(f"📂 Full path: {full_path}")
+        print(f"✅ File exists: {os.path.exists(full_path)}")
+
+        
+        # Using the absolute path of your uploads folder
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    except Exception as e:
+        print(f"Error serving image: {str(e)}")
+        return f"Error: {str(e)}", 500
+@app.route("/test-image-path/<filename>")
+def test_image_path(filename):
+    full_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    exists = os.path.exists(full_path)
+    return jsonify({
+        "requested_file": filename,
+        "full_path": full_path,
+        "file_exists": exists,
+        "upload_folder": app.config['UPLOAD_FOLDER'],
+        "directory_contents": os.listdir(app.config['UPLOAD_FOLDER']) if exists else "N/A"
+    })
+
+
+if __name__ == "__main__":
+    app.run(debug=True, port=5000, host='0.0.0.0')
