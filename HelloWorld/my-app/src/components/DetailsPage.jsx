@@ -53,6 +53,8 @@ const handleImageUpload = async (event) => {
     }
 };
 
+
+
     const handlePredict = async () => {
         console.log("📤 Sending data to API:", row);
     
@@ -82,12 +84,43 @@ const handleImageUpload = async (event) => {
         }
     };
 
-    const handleRemoveImage = () => {
-        setUploadedImage(null);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = "";
+    const handleRemoveImage = async () => {
+        if (!uploadedImage || !row.EmployeeNumber) return;
+    
+        try {
+            const response = await fetch("http://127.0.0.1:5000/delete-image", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    filename: row.profilePicFilename, // Pass filename
+                    employeeId: row.EmployeeNumber   // Pass Employee ID
+                })
+            });
+    
+            const data = await response.json();
+    
+            if (response.ok) {
+                console.log("✅ Image deleted successfully:", data);
+    
+                // Remove image from frontend state
+                setUploadedImage(null);
+                
+                // Update row state (if needed)
+                row.profilePicFilename = null;  
+    
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = "";
+                }
+            } else {
+                console.error("❌ Error deleting image:", data.error || "Unknown error");
+            }
+        } catch (error) {
+            console.error("❌ Error deleting image:", error);
         }
     };
+    
 
 
     const handleDecision = (userDecision) => {

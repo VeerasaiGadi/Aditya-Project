@@ -210,7 +210,36 @@ def test_image_path(filename):
         "upload_folder": app.config['UPLOAD_FOLDER'],
         "directory_contents": os.listdir(app.config['UPLOAD_FOLDER']) if exists else "N/A"
     })
+# Delete image
+@app.route("/delete-image", methods=["POST"])
+def delete_image():
+    try:
+        data = request.json
+        filename = data.get("filename")
+        employee_id = data.get("employeeId")  # Get Employee ID
 
+        if not filename or not employee_id:
+            return jsonify({"error": "Filename and Employee ID are required"}), 400
+
+        file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+
+        # Delete the image file
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        # Update MongoDB to remove profilePicFilename
+        result = mongo.db.Employee.update_one(
+            {"EmployeeNumber": employee_id},
+            {"$unset": {"profilePicFilename": ""}}  # Remove profilePicFilename from DB
+        )
+
+        if result.modified_count == 0:
+            return jsonify({"error": "Employee not found or image not updated in DB"}), 404
+
+        return jsonify({"message": "Image deleted successfully"}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000, host='0.0.0.0')
